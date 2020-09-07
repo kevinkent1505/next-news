@@ -1,65 +1,88 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import React from 'react';
+import Layout from '../components/layout';
+import styles from '../styles/Home.module.scss'
 
-export default function Home() {
-  return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+// import fetch from 'isomorphic-fetch';
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+export async function getServerSideProps(context) {
+    let options = {
+        headers: {
+            'x-api-key': '02da8440f3ee4f578d178885d3cd1000',
+        }
+    };
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
+    let res = await fetch('http://newsapi.org/v2/top-headlines?country=id', options);
+    let data = await res.json();
+    console.log(res);
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+    return {
+        props: {
+            data: data,
+        },
+    }
+}
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+export default class Home extends React.Component {
+    constructor(props) {
+        super(props);
+    }
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
+    fetchTodayHeadlines() {
+        if (this.props.data.status === "ok") {
+            return (this.props.data.articles.map(function (item, i) {
+                return (
+                    <div key={i} className={`column is-full-mobile-only is-half-desktop`}>
+                        <div className={`card ${styles.newsCard}`}>
+                            <div className="card-image">
+                                <figure className={`image is-16by9 ${styles.newsCardImage}`}>
+                                    <img src={item.urlToImage} className={`has-ratio`} alt="Headline image"/>
+                                </figure>
+                            </div>
+                            <div className="card-content">
+                                <div className="media">
+                                    <div className={`media-content ${styles.newsTitle}`}>
+                                        <p className="title is-4">{item.title}</p>
+                                        <p className="subtitle is-6">{item.author}</p>
+                                    </div>
+                                </div>
 
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
+                                <div className="content">
+                                <span className={`${styles.newsDesc}`}>
+                                    {item.description}
+                                </span>
+                                    <br/>
+                                    <br/>
+                                    <span className={`${styles.newsContent}`}>
+                                    {item.content}
+                                </span>
+                                </div>
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
+                                < a href={item.url} className={`button`}>
+                                    Read Original>>
+                                </a>
+                            </div>
+                        </div>
+                    </div>)
+            }));
+        } else {
+            return (<h1>
+                    <strong>Data Fetch Error!</strong>
+                </h1>
+            )
+        }
+    }
+
+    render() {
+        return (
+            <Layout>
+                <section className={`news`}>
+                    <div className={`${styles.newsWrapper} container`}>
+                        <div className={`columns is-multiline`}>
+                            {this.fetchTodayHeadlines()}
+                        </div>
+                    </div>
+                </section>
+            </Layout>
+        )
+    }
 }

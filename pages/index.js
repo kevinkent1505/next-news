@@ -7,11 +7,11 @@ import styles from '../styles/Home.module.scss'
 export async function getServerSideProps(context) {
     let options = {
         headers: {
-            'x-api-key': '02da8440f3ee4f578d178885d3cd1000',
+            'x-api-key': process.env.API_KEY,
         }
     };
 
-    let res = await fetch('http://newsapi.org/v2/top-headlines?country=id', options);
+    let res = await fetch('http://newsapi.org/v2/top-headlines?country=us', options);
     let data = await res.json();
     console.log(res);
 

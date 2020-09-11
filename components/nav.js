@@ -1,29 +1,46 @@
 import React from "react";
 import Link from 'next/link';
+import styles from "../styles/Nav.module.scss";
 
 export default class Nav extends React.Component {
     constructor(props) {
-        super(props)
-        this.hamburgerClickHandler = this.hamburgerClickHandler.bind(this)
+        super(props);
+        this.hamburgerClickHandler = this.hamburgerClickHandler.bind(this);
+        this.onScrollHandler = this.onScrollHandler.bind(this);
         this.state = {
             isActive: false,
-            navbarActiveClass: " "
+            navbarActiveClass: " ",
+            navBarHiddenClass: " ",
         }
     }
 
     hamburgerClickHandler() {
-        this.setState({ isActive: !this.state.isActive })
-        this.state.isActive ? this.setState({ navbarActiveClass: "is-active" }) : this.setState({ navbarActiveClass: "" })
+        this.setState({isActive: !this.state.isActive});
+        this.state.isActive ? this.setState({navbarActiveClass: "is-active"}) : this.setState({navbarActiveClass: ""});
+    }
+
+    onScrollHandler() {
+        console.log(window.scrollY)
+
+    }
+
+    componentDidMount() {
+        window.addEventListener('scroll', this.onScrollHandler);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("scroll", this.onScrollHandler);
     }
 
     render() {
         return (
-            <nav className={`navbar is-primary is-fixed-top`} role="navigation" aria-label="main-navigation">
+            <nav className={`navbar is-primary is-fixed-top ${this.state.navBarHiddenClass}`} role="navigation"
+                 aria-label="main-navigation">
                 <div className="container">
                     <div className="navbar-brand">
 
                         <h5 className={`navbar-item`}>
-                            <strong>News Aggregator</strong>
+                            <strong className={`has-text-info`}>News Aggregator</strong>
                         </h5>
 
                         <a role="button" className={`navbar-burger burger ${this.state.navbarActiveClass}`}

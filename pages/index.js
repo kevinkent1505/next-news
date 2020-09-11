@@ -2,8 +2,6 @@ import React from 'react';
 import Layout from '../components/layout';
 import styles from '../styles/Home.module.scss'
 
-// import fetch from 'isomorphic-fetch';
-
 export async function getServerSideProps(context) {
     let options = {
         headers: {
@@ -25,7 +23,27 @@ export async function getServerSideProps(context) {
 export default class Home extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            errorModalIsActive: true,
+            errorModalActiveClass: 'is-active',
+            country: 'us',
+
+        }
+
+        this.errorModalClickHandler = this.errorModalClickHandler.bind(this);
+
     }
+
+    errorModalClickHandler() {
+        this.setState({errorModalIsActive: false});
+        this.setState({errorModalActiveClass: ''});
+    }
+
+    changeCountry() {
+
+    }
+
+
 
     fetchTodayHeadlines() {
         if (this.props.data.status === "ok") {
@@ -41,8 +59,9 @@ export default class Home extends React.Component {
                             <div className="card-content">
                                 <div className="media">
                                     <div className={`media-content ${styles.newsTitle}`}>
+                                        <p className={`subtitle is-8`}>{item.source.name}</p>
                                         <p className="title is-4">{item.title}</p>
-                                        <p className="subtitle is-6">{item.author}</p>
+                                        <p className="subtitle is-6">{item.author +' '+ item.publishedAt}</p>
                                     </div>
                                 </div>
 
@@ -56,21 +75,39 @@ export default class Home extends React.Component {
                                     {item.content}
                                 </span>
                                 </div>
-
-                                < a href={item.url} className={`button`}>
-                                    Read Original>>
-                                </a>
+                                <footer className={`card-footer`}>
+                                    < a href={item.url}
+                                        className={`button has-background-link has-text-light is-fullwidth`}>
+                                        Read On Original Site >>
+                                    </a>
+                                </footer>
                             </div>
                         </div>
                     </div>)
             }));
         } else {
-            return (<h1>
-                    <strong>Data Fetch Error!</strong>
-                </h1>
+            return (<div className={`modal ${this.state.errorModalActiveClass}`}>
+                    <div className="modal-background" onClick={this.errorModalClickHandler}></div>
+                    <div className="modal-content">
+                        <div className={`box`}>
+                            <div className={`media`}>
+                                <div className={`media-content has-text-centered`}>
+                                    <span className={`is-size-3 has-text-weight-bold`}>Data Fetch Error</span> <br/>
+                                    <span className={`is-size-5`}>Reason :</span> <br/>
+                                    <span
+                                        className={`${styles.errorMessage}`}>{"error " + this.props.data.code + " || " + this.props.data.message}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <button className="modal-close is-large" aria-label="close"
+                            onClick={this.errorModalClickHandler}></button>
+                </div>
             )
         }
     }
+
 
     render() {
         return (
